@@ -1,0 +1,527 @@
+
+<h2 class="sr-only">Dashboard Power BI Feb-Abr 2026. Mapa de puntos con filtros sincronizados.</h2>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  .pbi{display:grid;grid-template-columns:155px 1fr;font-family:'Segoe UI',var(--font-sans),sans-serif;background:#f3f2f1;border-radius:6px;overflow:hidden;border:1px solid #d2d0ce}
+  .pbi-sidebar{background:#252423;display:flex;flex-direction:column;grid-row:1/3}
+  .pbi-logo{padding:14px 12px 10px;border-bottom:1px solid #3b3a39;display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .pbi-logo-icon{width:20px;height:20px;background:#f2c811;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .pbi-logo-text{font-size:11px;font-weight:500;color:#c8c6c4;letter-spacing:.02em;line-height:1.3}
+  .pbi-filters{padding:10px 10px 0;flex:1;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+  .pbi-section{display:flex;flex-direction:column;gap:4px}
+  .pbi-section-title{font-size:9px;font-weight:500;color:#797775;text-transform:uppercase;letter-spacing:.08em;padding:0 2px 3px;border-bottom:1px solid #3b3a39;margin-bottom:2px}
+  .pbi-btn{font-size:11px;padding:5px 8px;border:1px solid #3b3a39;border-radius:3px;background:#323130;color:#c8c6c4;cursor:pointer;text-align:left;width:100%;line-height:1.3;transition:background .1s}
+  .pbi-btn:hover{background:#3b3a39}
+  .pbi-btn.sel-blue{background:#0078d4;color:#fff;border-color:#0078d4}
+  .pbi-btn.sel-green{background:#107c10;color:#fff;border-color:#107c10}
+  .cbtn{font-size:10px;padding:5px 8px;border:1px solid #3b3a39;border-radius:3px;background:#323130;color:#c8c6c4;cursor:pointer;text-align:left;width:100%;line-height:1.3;transition:background .1s}
+  .cbtn:hover{background:#3b3a39}
+  .cbtn.sel{background:#5c2d91;color:#fff;border-color:#5c2d91}
+  .abtn{font-size:10px;padding:5px 8px;border:1px solid #3b3a39;border-radius:3px;background:#323130;color:#c8c6c4;cursor:pointer;text-align:left;width:100%;line-height:1.3;transition:background .1s}
+  .abtn:hover{background:#3b3a39}
+  .abtn.sel{background:#ca5010;color:#fff;border-color:#ca5010}
+  .clear-link{font-size:10px;color:#797775;cursor:pointer;padding:2px;text-align:right;display:none}
+  .clear-link:hover{color:#c8c6c4}
+  .pbi-main{background:#f3f2f1;display:flex;flex-direction:column;padding:12px;gap:10px}
+  .pbi-topbar{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid #d2d0ce;flex-wrap:wrap;gap:4px}
+  .pbi-page-title{font-size:13px;font-weight:500;color:#323130}
+  .pbi-subtitle{font-size:11px;color:#797775}
+  .kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .kpi{background:#fff;border:1px solid #e1dfdd;border-radius:4px;padding:12px 14px;border-top:3px solid #0078d4;display:flex;flex-direction:column;gap:2px}
+  .kpi.green{border-top-color:#107c10}.kpi.orange{border-top-color:#ca5010}.kpi.purple{border-top-color:#5c2d91}.kpi.red{border-top-color:#d83b01}
+  .kpi-label{font-size:10px;color:#797775}
+  .kpi-value{font-size:20px;font-weight:500;color:#323130;line-height:1.1}
+  .kpi-sub{font-size:10px;color:#a19f9d}
+  .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chart-card{background:#fff;border:1px solid #e1dfdd;border-radius:4px;padding:10px 12px}
+  .chart-card.full{grid-column:1/-1}
+  .cct{font-size:11px;font-weight:500;color:#323130;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #f3f2f1;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .cct-left{display:flex;align-items:center;gap:6px}
+  .cct-left::before{content:'';width:3px;height:12px;border-radius:2px;background:#0078d4;flex-shrink:0}
+  .chart-card.green .cct-left::before{background:#107c10}
+  .chart-card.orange .cct-left::before{background:#ca5010}
+  .chart-card.purple .cct-left::before{background:#5c2d91}
+  .chart-card.teal .cct-left::before{background:#008272}
+  .chart-card.red .cct-left::before{background:#d83b01}
+  .cct-legend{display:flex;gap:10px;font-size:10px;color:#605e5c}
+  .cct-legend span{display:flex;align-items:center;gap:3px}
+  .ldot{width:8px;height:8px;border-radius:1px;flex-shrink:0}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;font-size:10px;color:#605e5c}
+  .legend span{display:flex;align-items:center;gap:3px}
+  .divider-section{border:none;border-top:2px dashed #d2d0ce;margin:2px 0}
+  .map-section{background:#f3f2f1;padding:0 12px 12px;grid-column:2/3}
+  .map-wrap{background:#1a1a2e;border-radius:6px;overflow:hidden;border:1px solid #3b3a39}
+  .map-header{background:#252423;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .map-title{font-size:12px;font-weight:500;color:#c8c6c4;display:flex;align-items:center;gap:8px}
+  #map{width:100%;height:440px}
+  .map-footer{background:#252423;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .map-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:10px;color:#797775}
+  .map-legend span{display:flex;align-items:center;gap:4px}
+  .map-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .map-stats{display:flex;gap:14px}
+  .map-stat{display:flex;flex-direction:column;align-items:center;gap:1px}
+  .map-stat strong{font-size:13px;font-weight:500;color:#c8c6c4}
+  .map-stat span{font-size:10px;color:#797775}
+  @media(max-width:600px){.pbi{grid-template-columns:1fr}.pbi-sidebar{grid-row:auto;display:none}.kpi-row{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}}
+</style>
+
+<div class="pbi">
+  <aside class="pbi-sidebar">
+    <div class="pbi-logo">
+      <div class="pbi-logo-icon">
+        <svg viewBox="0 0 13 13" fill="none"><rect x="0" y="5" width="3" height="8" fill="#252423" rx="0.5"/><rect x="5" y="2" width="3" height="11" fill="#252423" rx="0.5"/><rect x="10" y="0" width="3" height="13" fill="#252423" rx="0.5"/></svg>
+      </div>
+      <span class="pbi-logo-text">Tareas · Abr 2026</span>
+    </div>
+    <div class="pbi-filters">
+      <div class="pbi-section">
+        <p class="pbi-section-title">Mes</p>
+        <div id="row-mes" style="display:flex;flex-direction:column;gap:3px">
+          <button class="pbi-btn sel-blue" onclick="setMes('all',this)">Todos</button>
+          <button class="pbi-btn" onclick="setMes(2,this)">Febrero</button>
+          <button class="pbi-btn" onclick="setMes(3,this)">Marzo</button>
+          <button class="pbi-btn" onclick="setMes(4,this)">Abril</button>
+        </div>
+      </div>
+      <div class="pbi-section">
+        <p class="pbi-section-title">Tipo</p>
+        <button class="pbi-btn sel-green" onclick="setTipo('all',this)">Todos</button>
+        <button class="pbi-btn" onclick="setTipo('TAREA',this)">Tarea</button>
+        <button class="pbi-btn" onclick="setTipo('CASO',this)">Caso</button>
+      </div>
+      <div class="pbi-section">
+        <p class="pbi-section-title">Área</p>
+        <div id="area-panel" style="display:flex;flex-direction:column;gap:3px"></div>
+        <span class="clear-link" id="clear-area" onclick="clearArea()">↺ todas</span>
+      </div>
+      <div class="pbi-section">
+        <p class="pbi-section-title">Cuadrilla</p>
+        <div id="cuad-panel" style="display:flex;flex-direction:column;gap:3px"></div>
+        <span class="clear-link" id="clear-cuad" onclick="clearCuad()">↺ todas</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="pbi-main">
+    <div class="pbi-topbar">
+      <span class="pbi-page-title">Resumen operacional · Feb–Abr 2026</span>
+      <span class="pbi-subtitle" id="page-sub">Todos los meses · Tareas y casos · Todas las áreas · Todas las cuadrillas</span>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><span class="kpi-label">Total registros</span><span class="kpi-value" id="k-total">3,507</span><span class="kpi-sub" id="k-sub">Tareas y casos</span></div>
+      <div class="kpi green"><span class="kpi-label">Cuadrilla / Área</span><span class="kpi-value" id="k-ctx" style="font-size:12px;margin-top:4px;line-height:1.3">Todas</span><span class="kpi-sub" id="k-ctx-sub">sin filtro</span></div>
+      <div class="kpi orange"><span class="kpi-label">Área principal</span><span class="kpi-value" id="k-area-pct">78%</span><span class="kpi-sub" id="k-area-lbl">Interurbano</span></div>
+      <div class="kpi purple"><span class="kpi-label">Tarea más frecuente</span><span class="kpi-value" id="k-top-task" style="font-size:11px;margin-top:4px;line-height:1.3">Transf. cables</span><span class="kpi-sub" id="k-top-task-val">1,384 registros</span></div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card teal full">
+        <div class="cct">
+          <div class="cct-left" id="title-s">Tareas vs casos por cuadrilla</div>
+          <div class="cct-legend"><span><span class="ldot" style="background:#0078d4"></span>Tareas</span><span><span class="ldot" style="background:#ca5010"></span>Casos</span></div>
+        </div>
+        <div style="position:relative;width:100%;height:220px"><canvas id="chartS" role="img" aria-label="Apiladas">Apiladas.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="cct"><div class="cct-left" id="title-c">Registros por cuadrilla</div></div>
+        <div style="position:relative;width:100%;height:220px"><canvas id="chartC" role="img" aria-label="Cuadrillas">Cuadrillas.</canvas></div>
+      </div>
+      <div class="chart-card orange">
+        <div class="cct"><div class="cct-left" id="title-a">Distribución por área</div></div>
+        <div id="legendArea" class="legend"></div>
+        <div style="position:relative;width:100%;height:200px"><canvas id="chartA" role="img" aria-label="Área">Áreas.</canvas></div>
+      </div>
+      <div class="chart-card green full">
+        <div class="cct"><div class="cct-left" id="title-l">Evolución mensual</div></div>
+        <div style="position:relative;width:100%;height:200px"><canvas id="chartL" role="img" aria-label="Líneas">Tendencias.</canvas></div>
+      </div>
+      <div class="chart-card purple full">
+        <div class="cct"><div class="cct-left">Top 12 tipos de tarea</div></div>
+        <div style="position:relative;width:100%;height:220px"><canvas id="chartT" role="img" aria-label="Top tareas">Top tareas.</canvas></div>
+      </div>
+    </div>
+
+    <hr class="divider-section"/>
+
+    <div class="kpi-row">
+      <div class="kpi red"><span class="kpi-label">Cortes visibles</span><span class="kpi-value" id="kr-total">64</span><span class="kpi-sub">en el mapa</span></div>
+      <div class="kpi red" style="border-top-color:#881798"><span class="kpi-label">Ruta más afectada</span><span class="kpi-value" id="kr-top-ruta" style="font-size:11px;margin-top:4px;line-height:1.3">STA ISABEL-CASACAY</span><span class="kpi-sub" id="kr-top-ruta-val">7 cortes</span></div>
+      <div class="kpi red" style="border-top-color:#ffb900"><span class="kpi-label">Tiempo prom. corte</span><span class="kpi-value" id="kr-prom">524</span><span class="kpi-sub">minutos</span></div>
+      <div class="kpi red" style="border-top-color:#008272"><span class="kpi-label">Cuadrilla más cortes</span><span class="kpi-value" id="kr-top-cuad" style="font-size:12px;margin-top:4px">ZHU INT 01</span><span class="kpi-sub" id="kr-top-cuad-val">13 cortes</span></div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card red full">
+        <div class="cct">
+          <div class="cct-left" id="title-r">Cortes por ruta · SOPORTE.xlsx</div>
+          <div class="cct-legend"><span><span class="ldot" style="background:#d83b01"></span>N° cortes</span><span><span class="ldot" style="background:#ffb900"></span>Tiempo prom (h)</span></div>
+        </div>
+        <div style="position:relative;width:100%;height:260px"><canvas id="chartR" role="img" aria-label="Cortes ruta">Rutas.</canvas></div>
+      </div>
+      <div class="chart-card full" style="border-top:3px solid #881798">
+        <div class="cct"><div class="cct-left">Cortes por cuadrilla · SOPORTE.xlsx</div></div>
+        <div style="position:relative;width:100%;height:220px"><canvas id="chartRC" role="img" aria-label="Cortes cuadrilla">Cuadrillas cortes.</canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPA -->
+  <div class="map-section">
+    <div class="map-wrap">
+      <div class="map-header">
+        <div class="map-title">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="6" r="4" stroke="#f2c811" stroke-width="1.5" fill="none"/><path d="M7 10 L7 14" stroke="#f2c811" stroke-width="1.5"/></svg>
+          Cortes de fibra óptica · Puntos por cuadrilla
+        </div>
+      </div>
+      <div id="map"></div>
+      <div class="map-footer">
+        <div class="map-legend" id="map-legend"></div>
+        <div class="map-stats">
+          <div class="map-stat"><strong id="ms-total">—</strong><span>puntos</span></div>
+          <div class="map-stat"><strong id="ms-rutas">—</strong><span>rutas</span></div>
+          <div class="map-stat"><strong id="ms-prom">—</strong><span>min prom</span></div>
+          <div class="map-stat"><strong id="ms-max">—</strong><span>min máx</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const AGG=[{Cuadrilla:"CUE INT 01",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:2},{Cuadrilla:"CUE INT 01",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:4},{Cuadrilla:"CUE INT 01",Mes:2,Tipo:"TAREA",Area:"ELECTRICO",n:2},{Cuadrilla:"CUE INT 01",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:86},{Cuadrilla:"CUE INT 01",Mes:2,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"CUE INT 01",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:4},{Cuadrilla:"CUE INT 01",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:4},{Cuadrilla:"CUE INT 01",Mes:3,Tipo:"TAREA",Area:"INSTALACION",n:1},{Cuadrilla:"CUE INT 01",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:97},{Cuadrilla:"CUE INT 01",Mes:3,Tipo:"TAREA",Area:"RETIRO",n:1},{Cuadrilla:"CUE INT 01",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:5},{Cuadrilla:"CUE INT 01",Mes:4,Tipo:"CASO",Area:"INTERURBANO",n:2},{Cuadrilla:"CUE INT 01",Mes:4,Tipo:"CASO",Area:"SOPORTE",n:6},{Cuadrilla:"CUE INT 01",Mes:4,Tipo:"TAREA",Area:"CONSTRUCCION",n:1},{Cuadrilla:"CUE INT 01",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:67},{Cuadrilla:"CUE INT 01",Mes:4,Tipo:"TAREA",Area:"SOPORTE",n:5},{Cuadrilla:"CUE INT 02",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:1},{Cuadrilla:"CUE INT 02",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:4},{Cuadrilla:"CUE INT 02",Mes:2,Tipo:"TAREA",Area:"CONSTRUCCION",n:1},{Cuadrilla:"CUE INT 02",Mes:2,Tipo:"TAREA",Area:"INSTALACION",n:3},{Cuadrilla:"CUE INT 02",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:89},{Cuadrilla:"CUE INT 02",Mes:2,Tipo:"TAREA",Area:"RETIRO",n:1},{Cuadrilla:"CUE INT 02",Mes:2,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"CUE INT 02",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:7},{Cuadrilla:"CUE INT 02",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:1},{Cuadrilla:"CUE INT 02",Mes:3,Tipo:"TAREA",Area:"ELECTRICO",n:2},{Cuadrilla:"CUE INT 02",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:121},{Cuadrilla:"CUE INT 02",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:1},{Cuadrilla:"CUE INT 02",Mes:4,Tipo:"CASO",Area:"INTERURBANO",n:2},{Cuadrilla:"CUE INT 02",Mes:4,Tipo:"CASO",Area:"SOPORTE",n:4},{Cuadrilla:"CUE INT 02",Mes:4,Tipo:"TAREA",Area:"CONSTRUCCION",n:2},{Cuadrilla:"CUE INT 02",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:69},{Cuadrilla:"CUE INT 02",Mes:4,Tipo:"TAREA",Area:"SOPORTE",n:2},{Cuadrilla:"CUE INT 03",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:3},{Cuadrilla:"CUE INT 03",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:5},{Cuadrilla:"CUE INT 03",Mes:2,Tipo:"TAREA",Area:"ELECTRICO",n:2},{Cuadrilla:"CUE INT 03",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:81},{Cuadrilla:"CUE INT 03",Mes:2,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"CUE INT 03",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:6},{Cuadrilla:"CUE INT 03",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:2},{Cuadrilla:"CUE INT 03",Mes:3,Tipo:"TAREA",Area:"INSTALACION",n:1},{Cuadrilla:"CUE INT 03",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:97},{Cuadrilla:"CUE INT 03",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"CUE INT 03",Mes:4,Tipo:"CASO",Area:"CONSTRUCCION",n:2},{Cuadrilla:"CUE INT 03",Mes:4,Tipo:"CASO",Area:"SOPORTE",n:6},{Cuadrilla:"CUE INT 03",Mes:4,Tipo:"TAREA",Area:"CONSTRUCCION",n:4},{Cuadrilla:"CUE INT 03",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:60},{Cuadrilla:"CUE INT 03",Mes:4,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"CUE INT 04",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:4},{Cuadrilla:"CUE INT 04",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:1},{Cuadrilla:"CUE INT 04",Mes:2,Tipo:"TAREA",Area:"ELECTRICO",n:2},{Cuadrilla:"CUE INT 04",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:88},{Cuadrilla:"CUE INT 04",Mes:2,Tipo:"TAREA",Area:"SOPORTE",n:1},{Cuadrilla:"CUE INT 04",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:2},{Cuadrilla:"CUE INT 04",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:6},{Cuadrilla:"CUE INT 04",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:114},{Cuadrilla:"CUE INT 04",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"CUE INT 04",Mes:4,Tipo:"CASO",Area:"INTERURBANO",n:1},{Cuadrilla:"CUE INT 04",Mes:4,Tipo:"CASO",Area:"SOPORTE",n:2},{Cuadrilla:"CUE INT 04",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:68},{Cuadrilla:"CUE INT 04",Mes:4,Tipo:"TAREA",Area:"SOPORTE",n:7},{Cuadrilla:"GLT INT 01",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:61},{Cuadrilla:"GLT INT 01",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:1},{Cuadrilla:"GLT INT 01",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:71},{Cuadrilla:"GLT INT 01",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:58},{Cuadrilla:"GQZ INT 01",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:1},{Cuadrilla:"GQZ INT 01",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:2},{Cuadrilla:"GQZ INT 01",Mes:2,Tipo:"TAREA",Area:"CONSTRUCCION",n:10},{Cuadrilla:"GQZ INT 01",Mes:2,Tipo:"TAREA",Area:"ELECTRICO",n:1},{Cuadrilla:"GQZ INT 01",Mes:2,Tipo:"TAREA",Area:"INSTALACION",n:20},{Cuadrilla:"GQZ INT 01",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:47},{Cuadrilla:"GQZ INT 01",Mes:2,Tipo:"TAREA",Area:"RETIRO",n:5},{Cuadrilla:"GQZ INT 01",Mes:2,Tipo:"TAREA",Area:"SOPORTE",n:6},{Cuadrilla:"GQZ INT 01",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:2},{Cuadrilla:"GQZ INT 01",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:14},{Cuadrilla:"GQZ INT 01",Mes:3,Tipo:"TAREA",Area:"CONSTRUCCION",n:5},{Cuadrilla:"GQZ INT 01",Mes:3,Tipo:"TAREA",Area:"INSTALACION",n:25},{Cuadrilla:"GQZ INT 01",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:92},{Cuadrilla:"GQZ INT 01",Mes:3,Tipo:"TAREA",Area:"RETIRO",n:14},{Cuadrilla:"GQZ INT 01",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:5},{Cuadrilla:"GQZ INT 01",Mes:4,Tipo:"CASO",Area:"SOPORTE",n:1},{Cuadrilla:"GQZ INT 01",Mes:4,Tipo:"TAREA",Area:"CONSTRUCCION",n:1},{Cuadrilla:"GQZ INT 01",Mes:4,Tipo:"TAREA",Area:"ELECTRICO",n:4},{Cuadrilla:"GQZ INT 01",Mes:4,Tipo:"TAREA",Area:"INSTALACION",n:6},{Cuadrilla:"GQZ INT 01",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:61},{Cuadrilla:"GQZ INT 01",Mes:4,Tipo:"TAREA",Area:"RETIRO",n:4},{Cuadrilla:"GQZ INT 01",Mes:4,Tipo:"TAREA",Area:"SOPORTE",n:10},{Cuadrilla:"ONA INT 01",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:1},{Cuadrilla:"ONA INT 01",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:71},{Cuadrilla:"ONA INT 01",Mes:2,Tipo:"TAREA",Area:"RETIRO",n:1},{Cuadrilla:"ONA INT 01",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:71},{Cuadrilla:"ONA INT 01",Mes:3,Tipo:"TAREA",Area:"RETIRO",n:3},{Cuadrilla:"ONA INT 01",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:13},{Cuadrilla:"ONA INT 01",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:50},{Cuadrilla:"ONA INT 01",Mes:4,Tipo:"TAREA",Area:"SOPORTE",n:1},{Cuadrilla:"STA INT 01",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:1},{Cuadrilla:"STA INT 01",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:1},{Cuadrilla:"STA INT 01",Mes:2,Tipo:"TAREA",Area:"INSTALACION",n:5},{Cuadrilla:"STA INT 01",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:104},{Cuadrilla:"STA INT 01",Mes:2,Tipo:"TAREA",Area:"RETIRO",n:4},{Cuadrilla:"STA INT 01",Mes:2,Tipo:"TAREA",Area:"SOPORTE",n:2},{Cuadrilla:"STA INT 01",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:3},{Cuadrilla:"STA INT 01",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:3},{Cuadrilla:"STA INT 01",Mes:3,Tipo:"TAREA",Area:"ELECTRICO",n:1},{Cuadrilla:"STA INT 01",Mes:3,Tipo:"TAREA",Area:"INSTALACION",n:2},{Cuadrilla:"STA INT 01",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:121},{Cuadrilla:"STA INT 01",Mes:4,Tipo:"CASO",Area:"INTERURBANO",n:1},{Cuadrilla:"STA INT 01",Mes:4,Tipo:"CASO",Area:"SOPORTE",n:1},{Cuadrilla:"STA INT 01",Mes:4,Tipo:"TAREA",Area:"INSTALACION",n:2},{Cuadrilla:"STA INT 01",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:81},{Cuadrilla:"STA INT 02",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:4},{Cuadrilla:"STA INT 02",Mes:3,Tipo:"TAREA",Area:"ELECTRICO",n:5},{Cuadrilla:"STA INT 02",Mes:3,Tipo:"TAREA",Area:"INSTALACION",n:4},{Cuadrilla:"STA INT 02",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:62},{Cuadrilla:"STA INT 02",Mes:3,Tipo:"TAREA",Area:"RETIRO",n:1},{Cuadrilla:"STA INT 02",Mes:4,Tipo:"CASO",Area:"INTERURBANO",n:2},{Cuadrilla:"STA INT 02",Mes:4,Tipo:"TAREA",Area:"ELECTRICO",n:1},{Cuadrilla:"STA INT 02",Mes:4,Tipo:"TAREA",Area:"INSTALACION",n:1},{Cuadrilla:"STA INT 02",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:45},{Cuadrilla:"SUC INT 01",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:8},{Cuadrilla:"SUC INT 01",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:15},{Cuadrilla:"SUC INT 01",Mes:2,Tipo:"TAREA",Area:"ELECTRICO",n:1},{Cuadrilla:"SUC INT 01",Mes:2,Tipo:"TAREA",Area:"INSTALACION",n:30},{Cuadrilla:"SUC INT 01",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:57},{Cuadrilla:"SUC INT 01",Mes:2,Tipo:"TAREA",Area:"RETIRO",n:17},{Cuadrilla:"SUC INT 01",Mes:2,Tipo:"TAREA",Area:"SOPORTE",n:1},{Cuadrilla:"SUC INT 01",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:5},{Cuadrilla:"SUC INT 01",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:4},{Cuadrilla:"SUC INT 01",Mes:3,Tipo:"TAREA",Area:"INSTALACION",n:51},{Cuadrilla:"SUC INT 01",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:55},{Cuadrilla:"SUC INT 01",Mes:3,Tipo:"TAREA",Area:"RETIRO",n:47},{Cuadrilla:"SUC INT 01",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:4},{Cuadrilla:"SUC INT 01",Mes:4,Tipo:"CASO",Area:"INTERURBANO",n:3},{Cuadrilla:"SUC INT 01",Mes:4,Tipo:"CASO",Area:"SOPORTE",n:3},{Cuadrilla:"SUC INT 01",Mes:4,Tipo:"TAREA",Area:"INSTALACION",n:36},{Cuadrilla:"SUC INT 01",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:42},{Cuadrilla:"SUC INT 01",Mes:4,Tipo:"TAREA",Area:"RETIRO",n:3},{Cuadrilla:"SUC INT 01",Mes:4,Tipo:"TAREA",Area:"SOPORTE",n:1},{Cuadrilla:"SUC INT 02",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:3},{Cuadrilla:"SUC INT 02",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:7},{Cuadrilla:"SUC INT 02",Mes:2,Tipo:"TAREA",Area:"CONSTRUCCION",n:1},{Cuadrilla:"SUC INT 02",Mes:2,Tipo:"TAREA",Area:"ELECTRICO",n:3},{Cuadrilla:"SUC INT 02",Mes:2,Tipo:"TAREA",Area:"INSTALACION",n:42},{Cuadrilla:"SUC INT 02",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:65},{Cuadrilla:"SUC INT 02",Mes:2,Tipo:"TAREA",Area:"RETIRO",n:19},{Cuadrilla:"SUC INT 02",Mes:2,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"SUC INT 02",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:2},{Cuadrilla:"SUC INT 02",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:4},{Cuadrilla:"SUC INT 02",Mes:3,Tipo:"TAREA",Area:"INSTALACION",n:50},{Cuadrilla:"SUC INT 02",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:60},{Cuadrilla:"SUC INT 02",Mes:3,Tipo:"TAREA",Area:"RETIRO",n:42},{Cuadrilla:"SUC INT 02",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:4},{Cuadrilla:"SUC INT 02",Mes:4,Tipo:"CASO",Area:"INTERURBANO",n:3},{Cuadrilla:"SUC INT 02",Mes:4,Tipo:"TAREA",Area:"ELECTRICO",n:2},{Cuadrilla:"SUC INT 02",Mes:4,Tipo:"TAREA",Area:"INSTALACION",n:30},{Cuadrilla:"SUC INT 02",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:45},{Cuadrilla:"SUC INT 02",Mes:4,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"ZHU INT 01",Mes:2,Tipo:"CASO",Area:"INTERURBANO",n:2},{Cuadrilla:"ZHU INT 01",Mes:2,Tipo:"CASO",Area:"SOPORTE",n:7},{Cuadrilla:"ZHU INT 01",Mes:2,Tipo:"TAREA",Area:"ELECTRICO",n:2},{Cuadrilla:"ZHU INT 01",Mes:2,Tipo:"TAREA",Area:"INTERURBANO",n:96},{Cuadrilla:"ZHU INT 01",Mes:2,Tipo:"TAREA",Area:"RETIRO",n:12},{Cuadrilla:"ZHU INT 01",Mes:3,Tipo:"CASO",Area:"INTERURBANO",n:5},{Cuadrilla:"ZHU INT 01",Mes:3,Tipo:"CASO",Area:"SOPORTE",n:6},{Cuadrilla:"ZHU INT 01",Mes:3,Tipo:"TAREA",Area:"ELECTRICO",n:5},{Cuadrilla:"ZHU INT 01",Mes:3,Tipo:"TAREA",Area:"INTERURBANO",n:122},{Cuadrilla:"ZHU INT 01",Mes:3,Tipo:"TAREA",Area:"RETIRO",n:6},{Cuadrilla:"ZHU INT 01",Mes:3,Tipo:"TAREA",Area:"SOPORTE",n:3},{Cuadrilla:"ZHU INT 01",Mes:4,Tipo:"CASO",Area:"SOPORTE",n:3},{Cuadrilla:"ZHU INT 01",Mes:4,Tipo:"TAREA",Area:"ELECTRICO",n:3},{Cuadrilla:"ZHU INT 01",Mes:4,Tipo:"TAREA",Area:"INTERURBANO",n:88},{Cuadrilla:"ZHU INT 01",Mes:4,Tipo:"TAREA",Area:"RETIRO",n:1}];
+
+const GLOBAL_TOP={labels:["Transferencia de cables","Desbroce de Maleza","Recorrido Interurbano","FIBRA: INSTALACION UM","Mantenimiento De Ruta","Desmontaje de Fibra Optica Cliente","RETIRAR EQUIPO","Templado de F.O","Levantamiento De Información","Colocación de Herrajes","Reparar enlace de FO de acceso","Poda de Arboles"],data:[1384,300,287,280,143,94,90,74,71,46,45,33]};
+
+// SOPORTE data - cada punto tiene cuadrilla, mes y coordenadas reales
+const SOPORTE=[
+  {mes:1,ruta:"CUENCA - CAÑAR BK",cuadrilla:"ZHU INT 01",lat:-2.7047,lng:-78.9033,tiempo:424},
+  {mes:1,ruta:"CUENCA - OÑA",cuadrilla:"ONA INT 01",lat:-3.06526,lng:-79.02992,tiempo:495},
+  {mes:1,ruta:"ZHUD - GUALLETURO",cuadrilla:"ZHU INT 01",lat:-2.5075,lng:-79.1056,tiempo:291},
+  {mes:1,ruta:"MENDEZ - LOGROÑO",cuadrilla:"SUC INT 02",lat:-2.73265,lng:-78.27444,tiempo:575},
+  {mes:1,ruta:"GUALAQUIZA - GRANADILLAS",cuadrilla:"GQZ INT 01",lat:-3.3959,lng:-78.6343,tiempo:489},
+  {mes:1,ruta:"MENDEZ - TIWINZA",cuadrilla:"SUC INT 01",lat:-2.80763,lng:-78.24938,tiempo:495},
+  {mes:2,ruta:"CHUWITAYO - MACAS",cuadrilla:"SUC INT 02",lat:-2.02658,lng:-77.9512,tiempo:719},
+  {mes:2,ruta:"ZHUD - GUALLETURO",cuadrilla:"ZHU INT 01",lat:-2.4913,lng:-79.2909,tiempo:409},
+  {mes:2,ruta:"CUENCA - CAÑAR BK",cuadrilla:"CUE INT 04",lat:-2.7203,lng:-78.8878,tiempo:340},
+  {mes:2,ruta:"ZHUD - SUSCAL",cuadrilla:"ZHU INT 01",lat:-2.4674,lng:-79.0134,tiempo:376},
+  {mes:2,ruta:"CUENCA - SIGSIG",cuadrilla:"CUE INT 04",lat:-2.9733,lng:-78.8978,tiempo:480},
+  {mes:2,ruta:"MENDEZ - TIWINZA",cuadrilla:"SUC INT 01",lat:-2.82348,lng:-78.2328,tiempo:756},
+  {mes:2,ruta:"SANTA ISABEL - PUCARA",cuadrilla:"STA INT 01",lat:-3.273,lng:-79.3126,tiempo:548},
+  {mes:2,ruta:"CUENCA - CAÑAR BK",cuadrilla:"CUE INT 02",lat:-2.6121,lng:-78.9699,tiempo:408},
+  {mes:2,ruta:"ZHUD - CANAR",cuadrilla:"ZHU INT 01",lat:-2.5667,lng:-78.9274,tiempo:408},
+  {mes:2,ruta:"ZHUD - CHUNCHI",cuadrilla:"ZHU INT 01",lat:-2.1986,lng:-78.8544,tiempo:480},
+  {mes:2,ruta:"EL CABO - SAN JUAN",cuadrilla:"CUE INT 01",lat:-2.8936,lng:-78.7784,tiempo:237},
+  {mes:2,ruta:"MENDEZ - TIWINZA",cuadrilla:"SUC INT 02",lat:-2.92246,lng:-78.24665,tiempo:377},
+  {mes:3,ruta:"GUALLETURO - LA TRONCAL",cuadrilla:"GLT INT 01",lat:-2.48176,lng:-79.18161,tiempo:405},
+  {mes:3,ruta:"CUENCA - CAÑAR PR",cuadrilla:"CUE INT 01",lat:-2.8807,lng:-78.9906,tiempo:552},
+  {mes:3,ruta:"JAVIER LOYOLA - CAÑAR",cuadrilla:"CUE INT 03",lat:-2.78721,lng:-78.87433,tiempo:306},
+  {mes:3,ruta:"CAÑAR - ZHUD PR",cuadrilla:"ZHU INT 01",lat:-2.5808,lng:-78.9384,tiempo:60},
+  {mes:3,ruta:"SANTA ISABEL - CASACAY",cuadrilla:"STA INT 01",lat:-3.3261,lng:-79.3761,tiempo:457},
+  {mes:3,ruta:"MENDEZ - PAHUANCAY",cuadrilla:"SUC INT 02",lat:-2.70937,lng:-78.34579,tiempo:687},
+  {mes:3,ruta:"ZHUD - CHUNCHI",cuadrilla:"ZHU INT 01",lat:-2.2747,lng:-78.9124,tiempo:410},
+  {mes:3,ruta:"SANTA ISABEL - CASACAY",cuadrilla:"STA INT 02",lat:-3.3288,lng:-79.4586,tiempo:994},
+  {mes:3,ruta:"SANTA ISABEL - PUCARA",cuadrilla:"STA INT 02",lat:-3.2692,lng:-79.3858,tiempo:388},
+  {mes:3,ruta:"SANTA ISABEL - CASACAY",cuadrilla:"STA INT 02",lat:-3.3288,lng:-79.4579,tiempo:1252},
+  {mes:3,ruta:"MENDEZ - LIMON",cuadrilla:"SUC INT 01",lat:-2.87236,lng:-78.3755,tiempo:1202},
+  {mes:3,ruta:"MENDEZ - TIWINZA",cuadrilla:"SUC INT 02",lat:-2.74057,lng:-78.27813,tiempo:1968},
+  {mes:3,ruta:"CUENCA - CAÑAR",cuadrilla:"ZHU INT 01",lat:-2.6468,lng:-78.9188,tiempo:383},
+  {mes:3,ruta:"SANTA ISABEL - CASACAY",cuadrilla:"STA INT 01",lat:-3.3301,lng:-79.4513,tiempo:1295},
+  {mes:4,ruta:"SANTA ISABEL - GIRON",cuadrilla:"STA INT 01",lat:-3.2202,lng:-79.2034,tiempo:523},
+  {mes:4,ruta:"SANTA ISABEL - PUCARA",cuadrilla:"STA INT 01",lat:-3.2439,lng:-79.437,tiempo:603},
+  {mes:4,ruta:"ZHUD - GUALLETURO",cuadrilla:"ONA INT 01",lat:-2.48261,lng:-79.19277,tiempo:207},
+  {mes:4,ruta:"ONA - NABON",cuadrilla:"ONA INT 01",lat:-3.3249,lng:-79.094,tiempo:666},
+  {mes:4,ruta:"CUENCA - CAÑAR BK",cuadrilla:"CUE INT 01",lat:-2.67542,lng:-78.94682,tiempo:571},
+  {mes:4,ruta:"CUENCA - CAÑAR BK",cuadrilla:"ZHU INT 01",lat:-2.6703,lng:-78.9478,tiempo:378},
+  {mes:4,ruta:"PUCARA - SANTA ISABEL",cuadrilla:"STA INT 01",lat:-3.2259,lng:-79.4524,tiempo:351},
+  {mes:4,ruta:"CUENCA - CAÑAR PR",cuadrilla:"ZHU INT 01",lat:-2.647,lng:-78.92047,tiempo:360},
+  {mes:5,ruta:"GUALACEO SIGSIG",cuadrilla:"CUE INT 01",lat:-3.0073,lng:-78.7616,tiempo:389},
+  {mes:5,ruta:"MENDEZ - LIMON",cuadrilla:"SUC INT 02",lat:-2.91995,lng:-78.40418,tiempo:527},
+  {mes:5,ruta:"CUENCA - CAÑAR BK",cuadrilla:"CUE INT 03",lat:-2.8901,lng:-78.9653,tiempo:227},
+  {mes:5,ruta:"ZHUD - GUALLETURO",cuadrilla:"ZHU INT 01",lat:-2.4758,lng:-79.0862,tiempo:367},
+  {mes:6,ruta:"CUENCA - CAÑAR BK",cuadrilla:"CUE INT 02",lat:-2.7427,lng:-78.8518,tiempo:320},
+  {mes:6,ruta:"JAVIER LOYOLA - CAÑAR",cuadrilla:"CUE INT 01",lat:-2.7427,lng:-78.8518,tiempo:116},
+  {mes:6,ruta:"CUENCA - CAÑAR PR",cuadrilla:"CUE INT 03",lat:-2.7427,lng:-78.8517,tiempo:277},
+  {mes:6,ruta:"MENDEZ - TIWINZA",cuadrilla:"SUC INT 01",lat:-2.6788,lng:-78.3122,tiempo:213},
+  {mes:6,ruta:"SANTA ISABEL - CASACAY",cuadrilla:"STA INT 01",lat:-3.31,lng:-79.395,tiempo:457},
+  {mes:6,ruta:"MENDEZ - TIWINZA",cuadrilla:"SUC INT 02",lat:-2.7122,lng:-78.3278,tiempo:422},
+  {mes:7,ruta:"ONA - NABON",cuadrilla:"ONA INT 01",lat:-3.31152,lng:-79.11022,tiempo:353},
+  {mes:7,ruta:"MENDEZ - TIWINZA",cuadrilla:"SUC INT 01",lat:-2.81634,lng:-78.2633,tiempo:374},
+  {mes:8,ruta:"ONA - NABON",cuadrilla:"ONA INT 01",lat:-3.3323,lng:-79.072,tiempo:293},
+  {mes:8,ruta:"CUENCA - CAÑAR F01",cuadrilla:"ZHU INT 01",lat:-2.6602,lng:-78.9143,tiempo:472},
+  {mes:10,ruta:"SANTA ISABEL - CASACAY",cuadrilla:"STA INT 01",lat:-3.3157,lng:-79.6601,tiempo:717},
+  {mes:10,ruta:"CUENCA - CAÑAR F02",cuadrilla:"CUE INT 03",lat:-2.88153,lng:-78.97567,tiempo:388},
+  {mes:10,ruta:"CUENCA - PAHUANCAY",cuadrilla:"CUE INT 02",lat:-2.8814,lng:-78.9749,tiempo:375},
+  {mes:10,ruta:"CUENCA - CAÑAR F02",cuadrilla:"CUE INT 01",lat:-2.88167,lng:-78.97449,tiempo:337},
+  {mes:10,ruta:"SANTA ISABEL - CASACAY",cuadrilla:"STA INT 02",lat:-3.3205,lng:-79.6732,tiempo:307},
+  {mes:10,ruta:"CUENCA - PAHUANCAY",cuadrilla:"CUE INT 02",lat:-2.8814,lng:-78.976,tiempo:278},
+  {mes:11,ruta:"GUALACEO - ÑUÑURCO",cuadrilla:"CUE INT 01",lat:-2.8846,lng:-78.7757,tiempo:346},
+  {mes:11,ruta:"SANTA ISABEL - CASACAY",cuadrilla:"STA INT 01",lat:-3.3261,lng:-79.3764,tiempo:232},
+  {mes:11,ruta:"CUENCA - OÑA",cuadrilla:"ONA INT 01",lat:-3.0633,lng:-79.0213,tiempo:302},
+  {mes:11,ruta:"MENDEZ - TIWINZA",cuadrilla:"SUC INT 02",lat:-2.74372,lng:-78.30509,tiempo:213},
+  {mes:11,ruta:"MENDEZ - LOGROÑO",cuadrilla:"SUC INT 01",lat:-2.73967,lng:-78.29691,tiempo:467},
+];
+
+const CUAD_COLORS={
+  'ZHU INT 01':'#0078d4','SUC INT 02':'#107c10','STA INT 01':'#d83b01',
+  'CUE INT 01':'#5c2d91','ONA INT 01':'#008272','SUC INT 01':'#ca5010',
+  'CUE INT 03':'#004578','CUE INT 02':'#881798','STA INT 02':'#ffb900',
+  'CUE INT 04':'#00b294','GLT INT 01':'#e74856','GQZ INT 01':'#0099bc'
+};
+const AREA_COLORS=['#0078d4','#107c10','#ca5010','#5c2d91','#d83b01','#008272'];
+const LINE_COLORS=['#0078d4','#107c10','#ca5010','#5c2d91','#d83b01','#008272','#004578','#881798','#00b294','#ffb900','#e74856','#0099bc'];
+const LINE_DASH=[[],[6,3],[3,3],[8,4],[4,4],[2,2],[5,2],[3,5],[7,3],[4,2],[6,2],[2,4]];
+const MES_NAMES={2:'Feb',3:'Mar',4:'Abr'};
+const MES_FULL={2:'Febrero',3:'Marzo',4:'Abril'};
+const GRID='rgba(200,198,196,.3)';
+const TICK_X={color:'#797775',font:{size:9},maxRotation:35,minRotation:25};
+const TICK_Y={color:'#797775',font:{size:10}};
+const ALL_CUADS=[...new Set(AGG.map(r=>r.Cuadrilla))].sort();
+const ALL_MESES=[2,3,4];
+const ALL_AREAS=[...new Set(AGG.map(r=>r.Area))].sort();
+
+let activeMes='all',activeTipo='all',activeCuad=null,activeArea=null;
+let leafMap,markersLayer;
+let chartS,chartC,chartA,chartL,chartT,chartR,chartRC;
+
+// ── FILTER FUNCTIONS ───────────────────────────────────────────────────────
+function getAgg(){
+  return AGG.filter(r=>
+    (activeCuad===null||r.Cuadrilla===activeCuad)&&
+    (activeArea===null||r.Area===activeArea)&&
+    (activeMes==='all'||+r.Mes===+activeMes)&&
+    (activeTipo==='all'||r.Tipo===activeTipo)
+  );
+}
+
+// El mapa respeta TODOS los filtros activos: mes, cuadrilla
+// Nota: área y tipo no existen en SOPORTE pero sí mes y cuadrilla
+function getSoporte(){
+  return SOPORTE.filter(r=>
+    (activeCuad===null||r.cuadrilla===activeCuad)&&
+    (activeMes==='all'||+r.mes===+activeMes)
+  );
+}
+
+function sumBy(rows,fn){
+  const m={};rows.forEach(r=>{const k=fn(r);m[k]=(m[k]||0)+r.n;});return m;
+}
+
+// ── MAP ────────────────────────────────────────────────────────────────────
+function initMap(){
+  leafMap=L.map('map',{zoomControl:true}).setView([-3.0,-78.8],8);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'© CARTO',subdomains:'abcd',maxZoom:19
+  }).addTo(leafMap);
+  markersLayer=L.layerGroup().addTo(leafMap);
+  renderMap();
+}
+
+function renderMap(){
+  if(!leafMap) return;
+  markersLayer.clearLayers();
+  const pts=getSoporte();
+
+  // Calcular max tiempo para escalar el radio
+  const maxT=pts.length?Math.max(...pts.map(p=>p.tiempo)):1;
+
+  pts.forEach(p=>{
+    const col=CUAD_COLORS[p.cuadrilla]||'#888';
+    // Radio proporcional al tiempo de corte: mínimo 7, máximo 20
+    const radio=7+Math.round((p.tiempo/maxT)*13);
+    const marker=L.circleMarker([p.lat,p.lng],{
+      radius:radio,
+      fillColor:col,
+      color:'#ffffff',
+      weight:1.5,
+      opacity:1,
+      fillOpacity:0.85
+    });
+    const mesLabel={1:'Enero',2:'Febrero',3:'Marzo',4:'Abril',5:'Mayo',6:'Junio',7:'Julio',8:'Agosto',10:'Octubre',11:'Noviembre'}[p.mes]||'Mes '+p.mes;
+    marker.bindPopup(`
+      <div style="font-family:'Segoe UI',sans-serif;min-width:200px;font-size:11px;line-height:1.6">
+        <div style="font-size:12px;font-weight:500;color:#fff;margin-bottom:4px">${p.ruta}</div>
+        <div style="display:inline-block;padding:2px 8px;border-radius:3px;background:${col};color:#fff;font-size:10px;margin-bottom:6px">${p.cuadrilla}</div>
+        <table style="width:100%;font-size:10px;color:#c8c6c4">
+          <tr><td style="color:#797775">Mes</td><td style="text-align:right;color:#fff">${mesLabel}</td></tr>
+          <tr><td style="color:#797775">Duración</td><td style="text-align:right;color:#ffb900;font-weight:500">${p.tiempo} min (${(p.tiempo/60).toFixed(1)} h)</td></tr>
+        </table>
+        <div style="height:4px;border-radius:2px;background:${col};width:${Math.round((p.tiempo/maxT)*100)}%;margin-top:6px;opacity:.8"></div>
+      </div>`,{maxWidth:240,className:''}
+    );
+    markersLayer.addLayer(marker);
+  });
+
+  // Leyenda dinámica: cuadrillas presentes en los puntos filtrados
+  const cuadsPresentes=[...new Set(pts.map(p=>p.cuadrilla))].sort();
+  document.getElementById('map-legend').innerHTML=cuadsPresentes.map(c=>
+    `<span><span class="map-dot" style="background:${CUAD_COLORS[c]||'#888'}"></span>${c}</span>`
+  ).join('');
+
+  updateMapStats(pts);
+}
+
+function updateMapStats(pts){
+  document.getElementById('ms-total').textContent=pts.length;
+  document.getElementById('ms-rutas').textContent=[...new Set(pts.map(p=>p.ruta))].length;
+  if(pts.length){
+    document.getElementById('ms-prom').textContent=Math.round(pts.reduce((s,p)=>s+p.tiempo,0)/pts.length);
+    document.getElementById('ms-max').textContent=Math.max(...pts.map(p=>p.tiempo)).toLocaleString();
+  } else {
+    document.getElementById('ms-prom').textContent='—';
+    document.getElementById('ms-max').textContent='—';
+  }
+}
+
+// ── CHARTS ─────────────────────────────────────────────────────────────────
+function buildCharts(){
+  if(chartS){chartS.destroy();chartC.destroy();chartA.destroy();chartL.destroy();chartT.destroy();}
+  if(chartR){chartR.destroy();chartRC.destroy();}
+
+  const rows=getAgg();
+  const total=rows.reduce((s,r)=>s+r.n,0);
+  const cuadTotals=sumBy(rows,r=>r.Cuadrilla);
+  const sortedCuads=ALL_CUADS.slice().sort((a,b)=>(cuadTotals[b]||0)-(cuadTotals[a]||0));
+  const mesesActivos=activeMes==='all'?ALL_MESES:[+activeMes];
+
+  // ── Apiladas ─────────────────────────────────────────────────────────
+  const sLabels=activeCuad?mesesActivos.map(m=>MES_NAMES[m]):sortedCuads;
+  const getTareas=l=>activeCuad
+    ?rows.filter(r=>+r.Mes===+l&&r.Tipo==='TAREA').reduce((s,r)=>s+r.n,0)
+    :rows.filter(r=>r.Cuadrilla===l&&r.Tipo==='TAREA').reduce((s,r)=>s+r.n,0);
+  const getCasos=l=>activeCuad
+    ?rows.filter(r=>+r.Mes===+l&&r.Tipo==='CASO').reduce((s,r)=>s+r.n,0)
+    :rows.filter(r=>r.Cuadrilla===l&&r.Tipo==='CASO').reduce((s,r)=>s+r.n,0);
+  document.getElementById('title-s').textContent=activeCuad?'Tareas vs casos · '+activeCuad:activeArea?'Tareas vs casos · '+activeArea:'Tareas vs casos por cuadrilla';
+  chartS=new Chart(document.getElementById('chartS'),{type:'bar',
+    data:{labels:sLabels,datasets:[{label:'Tareas',data:sLabels.map(getTareas),backgroundColor:'#0078d4',borderRadius:0,stack:'s'},{label:'Casos',data:sLabels.map(getCasos),backgroundColor:'#ca5010',borderRadius:2,stack:'s'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#323130',titleColor:'#c8c6c4',bodyColor:'#fff',callbacks:{label:c=>' '+c.dataset.label+': '+c.raw,footer:i=>'Total: '+i.reduce((s,x)=>s+x.raw,0)}}},
+      scales:{x:{stacked:true,grid:{display:false},ticks:TICK_X,border:{display:false}},y:{stacked:true,grid:{color:GRID},ticks:TICK_Y,border:{display:false}}}}});
+
+  // ── Barras cuadrillas ─────────────────────────────────────────────────
+  let cL,cD,cC;
+  if(activeCuad){
+    cL=mesesActivos.map(m=>MES_NAMES[m]);
+    cD=mesesActivos.map(m=>rows.filter(r=>+r.Mes===m).reduce((s,r)=>s+r.n,0));
+    cC=mesesActivos.map((_,i)=>AREA_COLORS[i%AREA_COLORS.length]);
+    document.getElementById('title-c').textContent='Registros mensuales · '+activeCuad;
+  } else {
+    cL=sortedCuads;cD=sortedCuads.map(c=>cuadTotals[c]||0);
+    cC=sortedCuads.map(c=>CUAD_COLORS[c]||'#888');
+    document.getElementById('title-c').textContent='Registros por cuadrilla';
+  }
+  chartC=new Chart(document.getElementById('chartC'),{type:'bar',data:{labels:cL,datasets:[{label:'Registros',data:cD,backgroundColor:cC,borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#323130',titleColor:'#c8c6c4',bodyColor:'#fff',callbacks:{label:c=>' '+c.raw+' registros'}}},
+      scales:{x:{grid:{display:false},ticks:TICK_X,border:{display:false}},y:{grid:{color:GRID},ticks:TICK_Y,border:{display:false}}}}});
+
+  // ── Dona ──────────────────────────────────────────────────────────────
+  if(activeArea){
+    document.getElementById('title-a').textContent='Cuadrillas en · '+activeArea;
+    const ci=sumBy(rows,r=>r.Cuadrilla);const ck=Object.keys(ci).sort((a,b)=>ci[b]-ci[a]);const cv=ck.map(k=>ci[k]);const ct=cv.reduce((a,b)=>a+b,0);
+    document.getElementById('legendArea').innerHTML=ck.map((k,i)=>`<span><span class="ldot" style="background:${LINE_COLORS[i%LINE_COLORS.length]}"></span>${k} ${Math.round(ci[k]/ct*100)}%</span>`).join('');
+    chartA=new Chart(document.getElementById('chartA'),{type:'doughnut',data:{labels:ck,datasets:[{data:cv,backgroundColor:LINE_COLORS,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#323130',titleColor:'#c8c6c4',bodyColor:'#fff',callbacks:{label:c=>' '+c.raw}}}}});
+  } else {
+    document.getElementById('title-a').textContent='Distribución por área';
+    const ac=sumBy(rows,r=>r.Area);const ak=Object.keys(ac).sort((a,b)=>ac[b]-ac[a]);const av=ak.map(k=>ac[k]);const at=av.reduce((a,b)=>a+b,0);
+    document.getElementById('legendArea').innerHTML=ak.map((k,i)=>`<span><span class="ldot" style="background:${AREA_COLORS[i%AREA_COLORS.length]}"></span>${k} ${Math.round(ac[k]/at*100)}%</span>`).join('');
+    chartA=new Chart(document.getElementById('chartA'),{type:'doughnut',data:{labels:ak,datasets:[{data:av,backgroundColor:AREA_COLORS,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#323130',titleColor:'#c8c6c4',bodyColor:'#fff',callbacks:{label:c=>' '+c.raw}}}}});
+  }
+
+  // ── Líneas ────────────────────────────────────────────────────────────
+  let lineDs;
+  const top6=sortedCuads.slice(0,6);
+  if(activeCuad){
+    document.getElementById('title-l').textContent='Evolución mensual · '+activeCuad+(activeArea?' · '+activeArea:'');
+    lineDs=[{label:activeCuad,data:ALL_MESES.map(m=>AGG.filter(r=>r.Cuadrilla===activeCuad&&+r.Mes===m&&(activeArea===null||r.Area===activeArea)&&(activeTipo==='all'||r.Tipo===activeTipo)).reduce((s,r)=>s+r.n,0)),borderColor:'#5c2d91',backgroundColor:'#5c2d9118',borderWidth:2,pointRadius:5,pointBackgroundColor:'#5c2d91',tension:.3,fill:true}];
+  } else {
+    document.getElementById('title-l').textContent=activeArea?'Evolución mensual · '+activeArea:'Evolución mensual por cuadrilla';
+    lineDs=top6.map((c,i)=>({label:c,data:ALL_MESES.map(m=>AGG.filter(r=>r.Cuadrilla===c&&+r.Mes===m&&(activeArea===null||r.Area===activeArea)&&(activeTipo==='all'||r.Tipo===activeTipo)).reduce((s,r)=>s+r.n,0)),borderColor:LINE_COLORS[i],backgroundColor:LINE_COLORS[i]+'18',borderDash:LINE_DASH[i],borderWidth:2,pointRadius:4,pointBackgroundColor:LINE_COLORS[i],tension:.3,fill:false}));
+  }
+  chartL=new Chart(document.getElementById('chartL'),{type:'line',data:{labels:ALL_MESES.map(m=>MES_FULL[m]),datasets:lineDs},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},color:'#605e5c',boxWidth:12,boxHeight:2,padding:10}},tooltip:{backgroundColor:'#323130',titleColor:'#c8c6c4',bodyColor:'#fff'}},
+      scales:{x:{grid:{display:false},ticks:TICK_X,border:{display:false}},y:{grid:{color:GRID},ticks:TICK_Y,border:{display:false}}}}});
+
+  // ── Top tareas ─────────────────────────────────────────────────────────
+  const ratio=total/3507;
+  chartT=new Chart(document.getElementById('chartT'),{type:'bar',
+    data:{labels:GLOBAL_TOP.labels,datasets:[{label:'Registros',data:GLOBAL_TOP.data.map(d=>Math.round(d*ratio)),backgroundColor:GLOBAL_TOP.labels.map((_,i)=>AREA_COLORS[i%AREA_COLORS.length]),borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#323130',titleColor:'#c8c6c4',bodyColor:'#fff',callbacks:{label:c=>' '+c.raw+' registros'}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#797775',font:{size:8},maxRotation:40,minRotation:30},border:{display:false}},y:{grid:{color:GRID},ticks:TICK_Y,border:{display:false}}}}});
+
+  // ── Soporte charts ─────────────────────────────────────────────────────
+  const sRows=getSoporte();
+  const rutaMap={};
+  sRows.forEach(r=>{if(!rutaMap[r.ruta])rutaMap[r.ruta]={count:0,tt:0};rutaMap[r.ruta].count++;rutaMap[r.ruta].tt+=r.tiempo;});
+  const rSorted=Object.keys(rutaMap).sort((a,b)=>rutaMap[b].count-rutaMap[a].count);
+  document.getElementById('title-r').textContent=activeCuad?'Cortes por ruta · '+activeCuad:'Cortes por ruta · SOPORTE.xlsx';
+  chartR=new Chart(document.getElementById('chartR'),{type:'bar',
+    data:{labels:rSorted,datasets:[{label:'N° cortes',data:rSorted.map(r=>rutaMap[r].count),backgroundColor:'#d83b01',borderRadius:3,borderSkipped:false,yAxisID:'y'},{label:'Tiempo prom (h)',data:rSorted.map(r=>+(rutaMap[r].tt/rutaMap[r].count/60).toFixed(1)),backgroundColor:'#ffb90099',borderRadius:3,borderSkipped:false,yAxisID:'y2'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#323130',titleColor:'#c8c6c4',bodyColor:'#fff',callbacks:{label:c=>c.dataset.label==='N° cortes'?' Cortes: '+c.raw:' Tiempo prom: '+c.raw+' h'}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#797775',font:{size:8},maxRotation:40,minRotation:30},border:{display:false}},y:{grid:{color:GRID},ticks:TICK_Y,border:{display:false}},y2:{position:'right',grid:{display:false},ticks:TICK_Y,border:{display:false}}}}});
+
+  const cuadCortes={};sRows.forEach(r=>{cuadCortes[r.cuadrilla]=(cuadCortes[r.cuadrilla]||0)+1;});
+  const ck2=Object.keys(cuadCortes).sort((a,b)=>cuadCortes[b]-cuadCortes[a]);
+  chartRC=new Chart(document.getElementById('chartRC'),{type:'bar',data:{labels:ck2,datasets:[{label:'Cortes',data:ck2.map(k=>cuadCortes[k]),backgroundColor:ck2.map(k=>CUAD_COLORS[k]||'#888'),borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#323130',titleColor:'#c8c6c4',bodyColor:'#fff',callbacks:{label:c=>' '+c.raw+' cortes'}}},
+      scales:{x:{grid:{display:false},ticks:TICK_X,border:{display:false}},y:{grid:{color:GRID},ticks:TICK_Y,border:{display:false}}}}});
+
+  // ── KPIs ───────────────────────────────────────────────────────────────
+  const ac=sumBy(rows,r=>r.Area);const ak=Object.keys(ac).sort((a,b)=>ac[b]-ac[a]);const at=Object.values(ac).reduce((a,b)=>a+b,0);
+  document.getElementById('k-total').textContent=total.toLocaleString();
+  document.getElementById('k-ctx').textContent=activeCuad&&activeArea?activeCuad+' · '+activeArea:activeCuad||activeArea||'Todas';
+  document.getElementById('k-ctx-sub').textContent=(activeCuad||activeArea)?'filtro activo':'sin filtro';
+  if(at>0){document.getElementById('k-area-pct').textContent=Math.round(ac[ak[0]]/at*100)+'%';document.getElementById('k-area-lbl').textContent=ak[0];}
+  document.getElementById('k-top-task').textContent='Transf. cables';
+  document.getElementById('k-top-task-val').textContent=Math.round(1384*ratio).toLocaleString()+' registros';
+  document.getElementById('k-sub').textContent=activeTipo==='all'?'Tareas y casos':activeTipo==='TAREA'?'Solo tareas':'Solo casos';
+
+  document.getElementById('kr-total').textContent=sRows.length;
+  if(rSorted.length){document.getElementById('kr-top-ruta').textContent=rSorted[0].length>20?rSorted[0].slice(0,18)+'…':rSorted[0];document.getElementById('kr-top-ruta-val').textContent=rutaMap[rSorted[0]].count+' cortes';}
+  if(sRows.length){document.getElementById('kr-prom').textContent=Math.round(sRows.reduce((s,r)=>s+r.tiempo,0)/sRows.length);}
+  if(ck2.length){document.getElementById('kr-top-cuad').textContent=ck2[0];document.getElementById('kr-top-cuad-val').textContent=cuadCortes[ck2[0]]+' cortes';}
+
+  const mesLbl=activeMes==='all'?'Feb–Abr 2026':(MES_FULL[activeMes]||activeMes);
+  const tipoLbl=activeTipo==='all'?'Tareas y casos':activeTipo==='TAREA'?'Solo tareas':'Solo casos';
+  document.getElementById('page-sub').textContent=mesLbl+' · '+tipoLbl+' · '+(activeArea||'Todas las áreas')+' · '+(activeCuad||'Todas las cuadrillas');
+
+  // Actualizar mapa con nuevos filtros
+  renderMap();
+}
+
+// ── FILTER HANDLERS ────────────────────────────────────────────────────────
+(function(){
+  const ap=document.getElementById('area-panel');
+  ALL_AREAS.forEach(a=>{const b=document.createElement('button');b.className='abtn';b.textContent=a;b.onclick=function(){selectArea(a,this)};ap.appendChild(b);});
+  const cp=document.getElementById('cuad-panel');
+  ALL_CUADS.forEach(c=>{const b=document.createElement('button');b.className='cbtn';b.textContent=c;b.onclick=function(){selectCuad(c,this)};cp.appendChild(b);});
+})();
+
+function setMes(mes,btn){
+  activeMes=mes;
+  document.querySelectorAll('#row-mes .pbi-btn').forEach(b=>b.classList.remove('sel-blue'));
+  btn.classList.add('sel-blue');
+  buildCharts();
+}
+function setTipo(tipo,btn){
+  activeTipo=tipo;
+  document.querySelectorAll('.pbi-section:nth-child(2) .pbi-btn').forEach(b=>b.classList.remove('sel-green'));
+  btn.classList.add('sel-green');
+  buildCharts();
+}
+function selectArea(name,btn){
+  if(activeArea===name){activeArea=null;btn.classList.remove('sel');document.getElementById('clear-area').style.display='none';}
+  else{activeArea=name;document.querySelectorAll('.abtn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('clear-area').style.display='block';}
+  buildCharts();
+}
+function clearArea(){activeArea=null;document.querySelectorAll('.abtn').forEach(b=>b.classList.remove('sel'));document.getElementById('clear-area').style.display='none';buildCharts();}
+function selectCuad(name,btn){
+  if(activeCuad===name){activeCuad=null;btn.classList.remove('sel');document.getElementById('clear-cuad').style.display='none';}
+  else{activeCuad=name;document.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('clear-cuad').style.display='block';}
+  buildCharts();
+}
+function clearCuad(){activeCuad=null;document.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('sel'));document.getElementById('clear-cuad').style.display='none';buildCharts();}
+
+buildCharts();
+setTimeout(initMap,400);
+</script>
